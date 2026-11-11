@@ -1,0 +1,58 @@
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Python
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Show Python version
+        run: python --version
+
+      - name: Check Python syntax
+        shell: bash
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          files = [
+              path for path in Path(".").rglob("*.py")
+              if not any(
+                  part in {".git", ".venv", "venv", "__pycache__"}
+                  for part in path.parts
+              )
+          ]
+
+          for path in files:
+              ast.parse(
+                  path.read_text(encoding="utf-8"),
+                  filename=str(path)
+              )
+              print(f"OK: {path}")
+
+          print(f"Validated {len(files)} Python files.")
+          PY
