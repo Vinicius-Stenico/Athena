@@ -218,3 +218,39 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ==========================================
+# ATHENA - Project-specific exclusions
+# ==========================================
+
+# Environment variables and local secrets
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local application data
+data/
+storage/
+uploads/
+inbox/
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# User learning materials
+courses/
+materials/
+personal_notes/
+
+# Local configuration overrides
+config.local.toml
+config.local.yaml
+config.local.json
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini

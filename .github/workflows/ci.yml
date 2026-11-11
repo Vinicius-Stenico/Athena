@@ -1,14 +1,11 @@
-
 name: CI
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
   push:
-    branches:
-      - main
+    branches: [main]
 
   workflow_dispatch:
 
@@ -22,37 +19,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: pyproject.toml
 
-      - name: Show Python version
-        run: python --version
-
-      - name: Check Python syntax
-        shell: bash
+      - name: Install dependencies
         run: |
-          python - <<'PY'
-          import ast
-          from pathlib import Path
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
 
-          files = [
-              path for path in Path(".").rglob("*.py")
-              if not any(
-                  part in {".git", ".venv", "venv", "__pycache__"}
-                  for part in path.parts
-              )
-          ]
+      - name: Run Ruff
+        run: python -m ruff check .
 
-          for path in files:
-              ast.parse(
-                  path.read_text(encoding="utf-8"),
-                  filename=str(path)
-              )
-              print(f"OK: {path}")
-
-          print(f"Validated {len(files)} Python files.")
-          PY
+      - name: Run Pytest
+        run: python -m pytest -v
